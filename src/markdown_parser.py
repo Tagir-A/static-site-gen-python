@@ -80,6 +80,16 @@ def text_to_textnodes(text):
     return links
 
 
+def markdown_to_blocks(markdown):
+    result = []
+    blocks = markdown.split("\n\n")
+    for block in blocks:
+        trimmed = block.strip()
+        if trimmed:
+            result.append(trimmed)
+    return result
+
+
 def extract_markdown_images(text):
     matches = re.findall(r"!\[([^\]]*)\]\(([^)]*)\)", text)
     return matches
