@@ -1,7 +1,7 @@
 import unittest
 
 from src.markdown_parser import extract_markdown_images, extract_markdown_links, markdown_to_blocks, split_nodes_delimiter, split_nodes_image, split_nodes_link, text_to_textnodes
-from src.textnode import TextNode, TextType
+from textnode import TextNode, TextType
 
 
 class TestMarkdownParser(unittest.TestCase):
