@@ -3,7 +3,6 @@ from src.textnode import TextNode, TextType
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
-    old_text_type = old_nodes[0].text_type
     result = []
     for old_node in old_nodes:
         blocks = old_node.text.split(delimiter)
@@ -13,7 +12,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         for block in blocks:
             if block:  # skip empty blocks
                 if count % 2 == 0:
-                    node = TextNode(block, old_text_type)
+                    node = TextNode(block, old_node.text_type)
                     result.append(node)
                 else:
                     node = TextNode(block, text_type)
@@ -69,6 +68,16 @@ def split_nodes_link(old_nodes):
             last_node = TextNode(remainder, text_type=TextType.TEXT)
             result.append(last_node)
     return result
+
+
+def text_to_textnodes(text):
+    node = TextNode(text, TextType.TEXT)
+    bold = split_nodes_delimiter([node], "**", TextType.BOLD)
+    italic = split_nodes_delimiter(bold, "_", TextType.ITALIC)
+    code = split_nodes_delimiter(italic, "`", TextType.CODE)
+    images = split_nodes_image(code)
+    links = split_nodes_link(images)
+    return links
 
 
 def extract_markdown_images(text):
