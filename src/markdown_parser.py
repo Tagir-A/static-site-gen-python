@@ -1,5 +1,5 @@
 import re
-from src.textnode import TextNode
+from src.textnode import TextNode, TextType
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -20,6 +20,54 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                     result.append(node)
             count += 1
 
+    return result
+
+
+def split_nodes_image(old_nodes):
+    result = []
+    for old_node in old_nodes:
+        blocks = extract_markdown_images(old_node.text)
+        if len(blocks) == 0:
+            result.append(old_node)
+            continue
+        remainder = old_node.text
+        for block in blocks:
+            alt_text = block[0]
+            url = block[1]
+            sections = remainder.split(f"![{alt_text}]({url})", 1)
+            remainder = sections[1]
+            if sections[0] != "":
+                new_node = TextNode(sections[0], text_type=TextType.TEXT)
+                result.append(new_node)
+            image_node = TextNode(alt_text, TextType.IMAGE, url)
+            result.append(image_node)
+        if remainder != "":
+            last_node = TextNode(remainder, text_type=TextType.TEXT)
+            result.append(last_node)
+    return result
+
+
+def split_nodes_link(old_nodes):
+    result = []
+    for old_node in old_nodes:
+        blocks = extract_markdown_links(old_node.text)
+        if len(blocks) == 0:
+            result.append(old_node)
+            continue
+        remainder = old_node.text
+        for block in blocks:
+            alt_text = block[0]
+            url = block[1]
+            sections = remainder.split(f"[{alt_text}]({url})", 1)
+            remainder = sections[1]
+            if sections[0] != "":
+                new_node = TextNode(sections[0], text_type=TextType.TEXT)
+                result.append(new_node)
+            image_node = TextNode(alt_text, TextType.LINK, url)
+            result.append(image_node)
+        if remainder != "":
+            last_node = TextNode(remainder, text_type=TextType.TEXT)
+            result.append(last_node)
     return result
 
 
