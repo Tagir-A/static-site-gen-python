@@ -1,5 +1,6 @@
 from pathlib import Path
 import shutil
+import sys
 from blocknode import BlockType, block_to_block_type
 from markdown_parser import markdown_to_blocks, text_to_textnodes
 from textnode import TextNode, TextType
@@ -7,10 +8,10 @@ from htmlnode import HTMLNode, LeafNode, ParentNode
 
 
 def main():
-    test = TextNode("hello", TextType.LINK, "https://www.boot.dev")
-    print(test)
+    basepath = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else "."
     copy_static()
-    generate_pages("./content", "./template.html", "./public")
+    generate_pages(f"{basepath}/content",
+                   f"{basepath}/template.html", f"{basepath}/docs")
     # print(f"{None}")
 
 
@@ -133,8 +134,8 @@ def extract_title(markdown):
 
 
 def copy_static():
-    clear_dir("./public")
-    copy_dir_contents('./static', './public')
+    clear_dir("./docs")
+    copy_dir_contents('./static', './docs')
 
 
 def clear_dir(path: str | Path) -> None:
@@ -154,8 +155,9 @@ def generate_page(from_path, template_path, dest_path):
     src = Path(from_path)
     dest = Path(dest_path)
     template = Path(template_path)
-    print(
-        f"Generating page from {src.resolve()} to {dest.resolve()} using {template.resolve()}")
+    basepath = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else "."
+    # print(
+    #     f"Generating page from {src.resolve()} to {dest.resolve()} using {template.resolve()}")
     markdown = src.read_text()
     template_file = template.read_text()
     title = extract_title(markdown)
@@ -164,6 +166,8 @@ def generate_page(from_path, template_path, dest_path):
     # print(f"content {template_file}")
     content_string = content.to_html()
     template_file = template_file.replace("{{ Content }}", content_string)
+    template_file = template_file.replace("href=\"/", f"href=\"{basepath}/")
+    template_file = template_file.replace("src=\"/", f"src=\"{basepath}/")
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(template_file)
 
