@@ -10,8 +10,8 @@ from htmlnode import HTMLNode, LeafNode, ParentNode
 def main():
     basepath = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else "."
     copy_static()
-    generate_pages(f"{basepath}/content",
-                   f"{basepath}/template.html", f"{basepath}/docs")
+    generate_pages(f"./content",
+                   f"./template.html", f"./docs")
     # print(f"{None}")
 
 
