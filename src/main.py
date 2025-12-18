@@ -10,8 +10,7 @@ def main():
     test = TextNode("hello", TextType.LINK, "https://www.boot.dev")
     print(test)
     copy_static()
-    generate_page('./content/index.md', './template.html',
-                  './public/index.html')
+    generate_pages("./content", "./template.html", "./public")
     # print(f"{None}")
 
 
@@ -165,6 +164,7 @@ def generate_page(from_path, template_path, dest_path):
     # print(f"content {template_file}")
     content_string = content.to_html()
     template_file = template_file.replace("{{ Content }}", content_string)
+    dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(template_file)
 
 
@@ -174,9 +174,10 @@ def generate_pages(dir_path_content, template_path, dest_dir_path):
     template = Path(template_path)
     for item in src.iterdir():
         if item.is_dir():
-            generate_pages(item, template_path, dest_dir_path)
+            generate_pages(item, template_path, dest / item.name)
         else:
-            generate_page(item, template_path, dest_dir_path)
+            generate_page(item, template_path, dest /
+                          item.relative_to(src).with_suffix('.html'))
 
 
 def copy_dir_contents(src: str | Path, dst: str | Path) -> None:
