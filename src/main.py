@@ -1,3 +1,5 @@
+from pathlib import Path
+import shutil
 from blocknode import BlockType, block_to_block_type
 from markdown_parser import markdown_to_blocks, text_to_textnodes
 from textnode import TextNode, TextType
@@ -7,6 +9,7 @@ from htmlnode import HTMLNode, LeafNode, ParentNode
 def main():
     test = TextNode("hello", TextType.LINK, "https://www.boot.dev")
     print(test)
+    copy_static()
     # print(f"{None}")
 
 
@@ -116,6 +119,42 @@ def markdown_to_html_node(markdown):
                 root.children.append(node)
 
     return root
+
+
+def copy_static():
+    clear_dir("./public")
+    copy_dir_contents('./static', './public')
+
+
+def clear_dir(path: str | Path) -> None:
+    print(Path(path).resolve())
+    p = Path(path)
+    if not p.is_dir():
+        raise ValueError(f"{p} is not a directory")
+
+    for item in p.iterdir():
+        if item.is_dir():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+
+
+def copy_dir_contents(src: str | Path, dst: str | Path) -> None:
+    src = Path(src)
+    print(f"src{src.resolve()}")
+    dst = Path(dst)
+    print(f"dst{dst.resolve()}")
+
+    if not src.is_dir():
+        raise ValueError(f"{src} is not a directory")
+    dst.mkdir(parents=True, exist_ok=True)
+
+    for item in src.iterdir():
+        target = dst / item.name
+        if item.is_dir():
+            shutil.copytree(item, target, dirs_exist_ok=True)
+        else:
+            shutil.copy2(item, target)
 
 
 main()
