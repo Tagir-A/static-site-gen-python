@@ -160,12 +160,23 @@ def generate_page(from_path, template_path, dest_path):
     markdown = src.read_text()
     template_file = template.read_text()
     title = extract_title(markdown)
-    template_file.replace("{{ Title }}", title)
+    template_file = template_file.replace("{{ Title }}", title)
     content = markdown_to_html_node(markdown)
-    # print(f"content {content}")
+    # print(f"content {template_file}")
     content_string = content.to_html()
-    template_file.replace("{{ Content }}", content_string)
+    template_file = template_file.replace("{{ Content }}", content_string)
     dest.write_text(template_file)
+
+
+def generate_pages(dir_path_content, template_path, dest_dir_path):
+    src = Path(dir_path_content)
+    dest = Path(dest_dir_path)
+    template = Path(template_path)
+    for item in src.iterdir():
+        if item.is_dir():
+            generate_pages(item, template_path, dest_dir_path)
+        else:
+            generate_page(item, template_path, dest_dir_path)
 
 
 def copy_dir_contents(src: str | Path, dst: str | Path) -> None:
