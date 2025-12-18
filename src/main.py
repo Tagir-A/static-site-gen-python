@@ -10,6 +10,8 @@ def main():
     test = TextNode("hello", TextType.LINK, "https://www.boot.dev")
     print(test)
     copy_static()
+    generate_page('./content/index.md', './template.html',
+                  './public/index.html')
     # print(f"{None}")
 
 
@@ -121,6 +123,16 @@ def markdown_to_html_node(markdown):
     return root
 
 
+def extract_title(markdown):
+    blocks = markdown.split("\n\n")
+    maybe_title = blocks[0]
+    if not maybe_title.startswith("# "):
+        raise Exception("Invalid Title")
+    title = maybe_title.removeprefix("# ")
+    stripped = title.strip()
+    return stripped
+
+
 def copy_static():
     clear_dir("./public")
     copy_dir_contents('./static', './public')
@@ -137,6 +149,23 @@ def clear_dir(path: str | Path) -> None:
             shutil.rmtree(item)
         else:
             item.unlink()
+
+
+def generate_page(from_path, template_path, dest_path):
+    src = Path(from_path)
+    dest = Path(dest_path)
+    template = Path(template_path)
+    print(
+        f"Generating page from {src.resolve()} to {dest.resolve()} using {template.resolve()}")
+    markdown = src.read_text()
+    template_file = template.read_text()
+    title = extract_title(markdown)
+    template_file.replace("{{ Title }}", title)
+    content = markdown_to_html_node(markdown)
+    # print(f"content {content}")
+    content_string = content.to_html()
+    template_file.replace("{{ Content }}", content_string)
+    dest.write_text(template_file)
 
 
 def copy_dir_contents(src: str | Path, dst: str | Path) -> None:

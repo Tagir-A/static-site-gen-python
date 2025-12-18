@@ -1,5 +1,5 @@
 import unittest
-from main import markdown_to_html_node, text_node_to_html_node
+from main import markdown_to_html_node, text_node_to_html_node, extract_title
 from textnode import TextNode, TextType
 
 
@@ -129,6 +129,56 @@ This is a simple paragraph.
             html,
             "<div><p>This is a simple paragraph.</p></div>",
         )
+
+
+class TestExtractTitle(unittest.TestCase):
+    def test_extract_title_basic(self):
+        markdown = "# Title"
+        self.assertEqual(extract_title(markdown), "Title")
+
+    def test_extract_title_with_spaces(self):
+        markdown = "# Title with spaces  "
+        self.assertEqual(extract_title(markdown), "Title with spaces")
+
+    def test_extract_title_with_inline_formatting(self):
+        markdown = "# Title with **bold**"
+        self.assertEqual(extract_title(markdown), "Title with **bold**")
+
+    def test_extract_title_with_multiple_paragraphs(self):
+        markdown = "# Title\n\nParagraph"
+        self.assertEqual(extract_title(markdown), "Title")
+
+    def test_extract_title_with_newline_in_block(self):
+        markdown = "# Title\ncontinuation"
+        self.assertEqual(extract_title(markdown), "Title\ncontinuation")
+
+    def test_extract_title_empty_title(self):
+        markdown = "# "
+        self.assertEqual(extract_title(markdown), "")
+
+    def test_extract_title_invalid_no_hash(self):
+        with self.assertRaises(Exception):
+            extract_title("Paragraph")
+
+    def test_extract_title_invalid_wrong_heading_level(self):
+        with self.assertRaises(Exception):
+            extract_title("## Title")
+
+    def test_extract_title_invalid_no_space_after_hash(self):
+        with self.assertRaises(Exception):
+            extract_title("#Title")
+
+    def test_extract_title_invalid_empty_markdown(self):
+        with self.assertRaises(Exception):
+            extract_title("")
+
+    def test_extract_title_invalid_leading_empty_block(self):
+        with self.assertRaises(Exception):
+            extract_title("\n\n# Title")
+
+    def test_extract_title_invalid_multiple_hashes(self):
+        with self.assertRaises(Exception):
+            extract_title("### Title")
 
 
 if __name__ == "__main__":

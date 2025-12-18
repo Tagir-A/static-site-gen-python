@@ -9,5 +9,6 @@
     "ghcr.io/azutake/devcontainer-features/go-packages-install:0": {
       "PACKAGES": "github.com/bootdotdev/bootdev@latest"
     }
-  }
+  },
+  "forwardPorts": [8888]
 }
